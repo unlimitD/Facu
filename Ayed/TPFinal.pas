@@ -1,10 +1,11 @@
 program TPFinal;
 uses crt;
 type guarderias = record
-     totcaniles: integer;
-     nromascota: integer;
+     nombre: string[40];
+     direccion: string[40];
+     cantmascotas: integer;
      valorxdia : real;
-     cantcaniles : integer;
+     totcaniles: integer;
      end;
 
      clientes = record
@@ -40,6 +41,9 @@ var g: file of guarderias;
     regm:mascotas;
     rega:atenciones;
     op: integer;
+    ba: char;
+
+
 
 procedure asignar;
 begin
@@ -60,16 +64,31 @@ writeln ('6) Facturacion');
 writeln ('7) Recaudacion por mes');
 end;
 
-procedure cierre;
-begin
-close (g);
-close (c);
-close (m);
-close (a);
-end;
 
 procedure genguarderia;
 begin
+{$I-}  ;
+reset (g);
+if ioresult= 2 then
+rewrite (g);
+{$I+};
+read (g, regg);
+ba := '0';
+while ba = '0' do
+      begin
+       writeln ('ingrese nombre de guarderia');
+       readln (regg.nombre);
+       writeln ('ingrese direccion de guarderia');
+       readln (regg.direccion);
+       writeln ('ingrese valor por dia');
+       readln (regg.valorxdia);
+       writeln ('ingrese cantidad de caniles');
+       readln (regg.totcaniles);
+       write (g,regg);
+       writeln ('Guarderia creada satisfactoriamente');
+       ba:='1';
+       end;
+readkey;
 end;
 
 procedure crearmesg;
@@ -94,6 +113,14 @@ end;
 
 procedure recaudacion;
 begin
+end;
+
+procedure cierre;
+begin
+close (g);
+close (c);
+close (m);
+close (a);
 end;
 
 begin
