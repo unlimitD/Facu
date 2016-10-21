@@ -41,7 +41,7 @@ var g: file of guarderias;
     regm:mascotas;
     rega:atenciones;
     op: integer;
-    ba: char;
+    ba: integer;
 
 
 
@@ -67,14 +67,13 @@ end;
 
 procedure genguarderia;
 begin
-{$I-}  ;
+{$I-} ;
 reset (g);
-if ioresult= 2 then
+if ioresult<> 0 then
 rewrite (g);
 {$I+};
-read (g, regg);
-ba := '0';
-while ba = '0' do
+ba := 0;
+while ba = 0 do
       begin
        writeln ('ingrese nombre de guarderia');
        readln (regg.nombre);
@@ -86,7 +85,7 @@ while ba = '0' do
        readln (regg.totcaniles);
        write (g,regg);
        writeln ('Guarderia creada satisfactoriamente');
-       ba:='1';
+       ba:=1;
        end;
 readkey;
 end;

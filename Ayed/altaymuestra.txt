@@ -1,0 +1,63 @@
+program aaa;
+uses crt;
+type
+    Hola=record
+               a:string[40];
+               b:integer;
+               c:char;
+               d:real;
+    end;
+    Hi=file of Hola;
+var
+   ult:integer;
+   cont: integer;
+
+   RHola:Hi;
+   reg:Hola;
+begin
+
+     assign (RHola,'c:\hola.dat');
+     reset(RHola);
+     if IOresult <> 0 then 
+     begin
+          rewrite(RHola);
+          writeln('se ha creado el archivo');
+     end
+     else
+     begin
+          writeln('el archivo ya estaba creado');
+     end;
+     ult:= filesize(RHola);
+     // seek(RHola,ult);
+     writeln('ingrese un string');
+          readln (reg.a);
+          writeln('ingrese un entero');
+          readln (reg.b);
+          writeln('ingrese un caracter');
+          readln (reg.c);
+          writeln('ingrese un real');
+          readln (reg.d);
+          write (RHola,reg);
+    // seek(RHola,0);
+         cont:=0 ;
+
+          //reset del archivo
+         // un read del archivo y el reg
+         // exibir los campos
+        reset(RHola);
+        repeat
+           read(RHola,reg);
+           writeln('');
+           writeln(reg.a);
+           writeln(reg.b);
+           writeln(reg.c);
+           writeln(reg.d:4:2);
+           cont:=cont+1
+        until cont = ult ;
+
+
+     readkey;
+
+     close(RHola);
+
+end.
