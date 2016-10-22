@@ -1,4 +1,4 @@
-program TPFinal;
+program TPFinalMOD;
 uses crt;
 type guarderias = record
      nombre: string[40];
@@ -11,7 +11,7 @@ type guarderias = record
      clientes = record
      dni : string[8];
      nomyapel : string[40];
-     facturacion: real;
+     fact: real;
      end;
 
      mascotas = record
@@ -43,6 +43,16 @@ var g: file of guarderias;
     op: integer;
     ba: integer;
     resp:char;
+    auxnom:string[40];
+    auxdir:string[40];
+    auxtot:integer;
+    cont:integer;
+    ult:integer;
+    ini:integer;
+    fin:integer;
+    med:integer;
+    b:boolean;
+    dni:string[8];
 
 
 
@@ -63,6 +73,7 @@ writeln ('4) Alta de mascotas');
 writeln ('5) Alta de atencion');
 writeln ('6) Facturacion');
 writeln ('7) Recaudacion por mes');
+writeln ('0) Salir');
 end;
 
 
@@ -104,8 +115,12 @@ readln (resp);
        regg.direccion:=auxdir;
        regg.totcaniles:=auxtot;
        write (g,regg);
-       end;
+       end ;
 {$I+};
+       write(regg.nombre);
+       write('  ',regg.direccion,'  ');
+       write('  $',regg.valorxdia:4:2);
+       writeln('  ',regg.totcaniles);
 readkey;
 end;
 
@@ -113,8 +128,45 @@ procedure crearmesg;
 begin
 end;
 
+function dico : boolean;
+begin
+ini:=0;
+fin:=filesize(c);
+b:=false;
+repeat
+      med:=(ini+fin)div 2;
+      seek (c, med);
+      read (c, regc);
+      if regc.dni = dni then
+      begin
+      b:=true
+      end
+      else
+      begin
+      if dni>regc.dni then
+      begin
+         fin:=med-1;
+      end
+         else
+         begin
+         ini:=med+1;
+         end;
+      end;
+until (ini>fin) or b;
+if b = true  then
+begin
+dico:=true ;
+end
+else
+begin
+dico:=false;
+end;
+end;
+
+
 procedure altacli;
 begin
+
 end;
 
 procedure altamasc;
@@ -147,7 +199,7 @@ repeat
       repeat
             menu;
             readln (op);
-      until (op>=1) and (op<=7);
+      until (op>=0) and (op<=7);
       case op of
       1: genguarderia;
       2: crearmesg;
@@ -155,9 +207,9 @@ repeat
       4: altamasc;
       5: altasat;
       6: facturacion;
-      7: recaudacion;
+      7: recaudacion
       end;
-until op=7;
+until op=0;
 cierre;
 readkey;
 end.
