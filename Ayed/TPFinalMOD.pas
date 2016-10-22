@@ -11,7 +11,7 @@ type guarderias = record
      clientes = record
      dni : string[8];
      nomyapel : string[40];
-     fact: real;
+     facturacion: real;
      end;
 
      mascotas = record
@@ -50,10 +50,16 @@ var g: file of guarderias;
     ult:integer;
     ini:integer;
     fin:integer;
-    med:integer;
     b:boolean;
+    med:integer;
     dni:string[8];
-
+    dni2:string[8];
+    i:integer;
+    j:integer;
+    nya:string[40];
+    nya2:string[40];
+    fac:real;
+    fac2:real;
 
 
 procedure asignar;
@@ -73,7 +79,7 @@ writeln ('4) Alta de mascotas');
 writeln ('5) Alta de atencion');
 writeln ('6) Facturacion');
 writeln ('7) Recaudacion por mes');
-writeln ('0) Salir');
+writeln ('0) salir');
 end;
 
 
@@ -115,13 +121,13 @@ readln (resp);
        regg.direccion:=auxdir;
        regg.totcaniles:=auxtot;
        write (g,regg);
-       end ;
+       end  ;
 {$I+};
        write(regg.nombre);
        write('  ',regg.direccion,'  ');
        write('  $',regg.valorxdia:4:2);
        writeln('  ',regg.totcaniles);
-readkey;
+       readkey;
 end;
 
 procedure crearmesg;
@@ -152,7 +158,7 @@ repeat
          ini:=med+1;
          end;
       end;
-until (ini>fin) or b;
+until (ini>fin) or b=true;
 if b = true  then
 begin
 dico:=true ;
@@ -163,9 +169,108 @@ dico:=false;
 end;
 end;
 
+procedure ORDENAR;
+begin
+     ult:=filesize(c);
+     seek(c,ult);
+
+     for i:=0 to ult-2 do
+     begin
+
+          for j:=i+1 to ult-1 do
+          begin
+
+
+               seek(c,i);
+               read(c,regc);
+               nya:=regc.nomyapel;
+               fac:=regc.facturacion;
+               dni:=regc.dni;
+               seek(c,j);
+               read(c,regc);
+               dni2:=regc.dni;
+               nya2:=regc.nomyapel;
+               fac2:=regc.facturacion;
+               if dni>dni2 then
+               begin
+                    seek(c,i);
+                    regc.dni:=dni2;
+                    regc.nomyapel:=nya2;
+                    regc.facturacion:=fac2;
+                    write(c,regc);
+                    seek(c,j);
+                    regc.dni:=dni;
+                    regc.nomyapel:=nya;
+                    regc.facturacion:=fac;
+                    write(c,regc);
+               end;
+
+          end
+     end;
+
+end;
+
 
 procedure altacli;
 begin
+
+     reset(c);
+     if IOresult <> 0 then 
+     begin
+          rewrite(c);
+          writeln('se ha creado el archivo');
+          readkey;
+     end
+     else
+     begin
+          writeln('el archivo ya estaba creado');
+          readkey;
+     end;
+     ORDENAR;
+     ult:= filesize(c);
+     seek(c,ult);
+     writeln('ingrese DNI del cliente');
+     readln(regc.dni);
+     dico;
+     writeln('ya pasó por dico');
+     if dico=true then
+        begin
+             writeln('ingrese nombre y apellido del cliente');
+             readln (regc.nomyapel);
+             writeln('ingrese facturacion');
+             readln (regc.facturacion);
+             write(c,regc);
+             writeln('se ha registrado al cliente satisfactoriamente');
+        end
+        else
+        begin
+             writeln('el cliente ya está registrado');
+             readkey;
+        end;
+
+
+          //ORDENAR;
+
+          cont:=0 ;
+
+
+        reset(c);
+          ult:= filesize(c);
+        repeat
+           read(c,regc);
+           write('  ',cont,'  ');
+           write('   ');
+           write(regc.dni);
+           write('   ');
+           write(regc.nomyapel);
+           write('   ');
+           writeln('$',regc.facturacion:4:2);
+           cont:=cont+1
+        until ult=cont ;
+
+
+     readkey;
+
 
 end;
 
