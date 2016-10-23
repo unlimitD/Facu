@@ -141,12 +141,82 @@ reset(c);
 b:=false;
 repeat
       read(c,regc);
-      if regc.dni=dni
-      then
+      if regc.dni=dni then
       b:=true
-until (b=true) or eof(c) ;
-if b=true then dico:=true
-else dico:=false
+      until (b=true) or eof(c) ;
+if b=true then
+dico:=true
+else
+dico:=false;
+writeln('1');
+readkey;
+
+{function dico : boolean;
+begin
+b:=false;
+ult:=filesize(c);
+cont:=0;
+dni:=regc.dni;
+repeat
+      seek(c,cont);
+      read(regc.dni);
+      if (dni=regc.dni)then
+      b:=true
+      else
+      cont:=cont+1;
+until (b=true) or (cont=ult);
+if b=true then
+dico:=true
+else
+dico:=false}
+
+{ini:=0;
+fin:=filesize(c);
+b:=false;
+repeat
+      med:=(ini+fin)div 2;
+      seek (c, med);
+      read (c, regc);
+      writeln('el DNI ingresado es',dni);
+      writeln('comparamos con',regc.dni);
+      if regc.dni = dni then
+      begin
+      b:=true
+      end
+      else
+      begin
+      if dni>regc.dni then
+      begin
+         fin:=med-1;
+      end
+         else
+         begin
+         ini:=med+1;
+         end;
+      end;
+until (ini>fin) or (b=true);
+if b = true  then
+begin
+dico:=true ;
+end
+else
+begin
+dico:=false;
+end; }
+end;
+
+procedure mostrarcli;
+begin
+cont:=0;
+ult:=filesize(c);
+repeat
+      seek(c,cont);
+      read(c,regc);
+      write(cont,'  ');
+      write(regc.dni,'  ');
+      writeln(regc.nomyapel);
+      cont:=cont+1;
+until cont=ult;
 end;
 
 procedure ordenar;
@@ -179,17 +249,20 @@ begin
                     regc.facturacion:=fac;
                     write(c,regc);
                end;
+
           end
      end;
-end;
 
+end;
 
 procedure alta;
 begin
+
 regc.dni:=dni;
 writeln('ingrese nombre y apellido');
-read(regc.nomyapel);
-seek (c, filesize(c))    ;
+readln(regc.nomyapel);
+writeln('se guardado satisfactoriamente');
+ seek (c, filesize(c))    ;
 write (c, regc);
 end;
 
@@ -204,12 +277,17 @@ if IOresult = 2 then
 {$I+};
 writeln('ingrese DNI del cliente');
 read(dni);
-readkey;
+
+//dico(dni);
+//writeln('salio de dico');
+//readkey;
 if dico(dni) then
          writeln('Ese cliente ya fue cargado')
    else
         alta;
 ordenar;
+mostrarcli;
+readkey;
 end;
 
 procedure altamasc;
