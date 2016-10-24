@@ -135,18 +135,19 @@ procedure crearmesg;
 begin
 end;
 
-function dico(dni:string[8]):boolean;
+function buscar(dni:string[8]):boolean;
 begin
 reset(c);
 b:=false;
 repeat
       read(c,regc);
-      if regc.dni=dni
-      then
+      if regc.dni=dni then
       b:=true
 until (b=true) or eof(c) ;
-if b=true then dico:=true
-else dico:=false
+if b=true then
+   buscar:=true
+   else
+   buscar:=false
 end;
 
 procedure ordenar;
@@ -187,10 +188,10 @@ end;
 procedure alta;
 begin
 regc.dni:=dni;
-writeln('ingrese nombre y apellido');
-read(regc.nomyapel);
-seek (c, filesize(c))    ;
-write (c, regc);
+writeln('Ingrese nombre y apellido: ');
+readln(regc.nomyapel);
+seek(c,filesize(c));
+write(c,regc)
 end;
 
 procedure altacli;
@@ -200,15 +201,28 @@ reset(c);
 if IOresult = 2 then
      begin
           rewrite(c);
-     end ;
+     end;
 {$I+};
 writeln('ingrese DNI del cliente');
 read(dni);
-readkey;
-if dico(dni) then
-         writeln('Ese cliente ya fue cargado')
-   else
-        alta;
+if filesize(c)=0 then begin
+write('Ingrese nombre y apellido: ');
+readln(regc.nomyapel);
+regc.dni:=dni;
+write(c,regc);
+writeln('Cliente Guardado')
+end
+else
+begin
+reset(c);
+if buscar(dni) then begin
+writeln(' ya fue cargado')
+end
+else
+alta;
+writeln('Cliente guardado.')
+end;
+
 ordenar;
 end;
 

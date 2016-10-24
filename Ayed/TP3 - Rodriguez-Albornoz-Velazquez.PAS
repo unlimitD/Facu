@@ -32,14 +32,23 @@ type guarderias = record
      costo: real;
      end;
 
+     calendarios= record
+     mes:integer;
+     anio:integer;
+     dias:array[1..31,1..25] of string;
+     precio:real;
+     end;
+
 var g: file of guarderias;
     c: file of clientes;
     m: file of mascotas;
     a: file of atenciones;
+    ca:file of calendarios;
     regg:guarderias;
     regc:clientes;
     regm:mascotas;
     rega:atenciones;
+    regca:calendarios;
     op: integer;
     ba: integer;
     resp:char;
@@ -48,10 +57,7 @@ var g: file of guarderias;
     auxtot:integer;
     cont:integer;
     ult:integer;
-    ini:integer;
-    fin:integer;
     b:boolean;
-    med:integer;
     dni:string[8];
     dni2:string[8];
     i:integer;
@@ -68,6 +74,7 @@ assign (g, 'c:\guarderias.dat');
 assign (c, 'c:\clientes.dat');
 assign (m, 'c:\mascotas.dat');
 assign (a, 'c:\atenciones.dat');
+assign (ca, 'c:\calendarios.dat');
 end;
 
 procedure menu;
@@ -99,8 +106,11 @@ while ba = 0 do
        readln (regg.direccion);
        writeln ('ingrese valor por dia');
        readln (regg.valorxdia);
-       writeln ('ingrese cantidad de caniles');
+       repeat
+       writeln ('ingrese cantidad de caniles menor a 25');
        readln (regg.totcaniles);
+       auxtot:=regg.totcaniles;
+       until (auxtot>=1) and (auxtot <= 25);
        write (g,regg);
        writeln ('Guarderia creada satisfactoriamente');
        ba:=1;
@@ -131,78 +141,77 @@ readln (resp);
        readkey;
 end;
 
-procedure crearmesg;
+procedure di(x:integer);
 begin
+     reset (g);
+     read (g,regg);
+     auxtot:=regg.totcaniles;
+                  readkey;
+     for i:=1 to 31 do
+         for j:=1 to 25 do
+          regca.dias[i,j]:='xxxxx';
+     for i:= 1 to x do
+         for j:=1 to auxtot do
+             regca.dias[i,j]:=' '
 end;
 
-function dico(dni:string[8]):boolean;
-begin
-reset(c);
-b:=false;
-repeat
-      read(c,regc);
-      if regc.dni=dni then
-      b:=true
-      until (b=true) or eof(c) ;
-if b=true then
-dico:=true
-else
-dico:=false;
-writeln('1');
-readkey;
 
-{function dico : boolean;
+procedure verdias;
 begin
-b:=false;
-ult:=filesize(c);
-cont:=0;
-dni:=regc.dni;
-repeat
-      seek(c,cont);
-      read(regc.dni);
-      if (dni=regc.dni)then
-      b:=true
-      else
-      cont:=cont+1;
-until (b=true) or (cont=ult);
-if b=true then
-dico:=true
-else
-dico:=false}
+  if (regca.mes=1) or (regca.mes=3) or (regca.mes=5) or (regca.mes=7) or (regca.mes=8) or (regca.mes=10) or (regca.mes=12) then
+    begin
+     di(31) ;
+    end
+  else if (regca.mes=4) or (regca.mes=6) or (regca.mes=9) or (regca.mes=11) then
+          di(30)
+       else if (regca.anio mod 4 =0) then
+              di(29)
+            else di(28)
+end;
 
-{ini:=0;
-fin:=filesize(c);
-b:=false;
-repeat
-      med:=(ini+fin)div 2;
-      seek (c, med);
-      read (c, regc);
-      writeln('el DNI ingresado es',dni);
-      writeln('comparamos con',regc.dni);
-      if regc.dni = dni then
-      begin
-      b:=true
-      end
-      else
-      begin
-      if dni>regc.dni then
-      begin
-         fin:=med-1;
-      end
-         else
-         begin
-         ini:=med+1;
-         end;
-      end;
-until (ini>fin) or (b=true);
-if b = true  then
+procedure crearmesg;
 begin
-dico:=true ;
-end
-else
-begin
-dico:=false;
-end; }
+   {$I-} ;
+    reset(ca);
+     if IOresult = 2 then
+    begin
+          rewrite(ca);
+     end ;
+     {$I+};
+     if (filesize(ca)=0) then
+        begin
+             repeat
+                   writeln('ingrese el mes de inicio');
+                   readln(regca.mes);
+             until (regca.mes >= 1) and (regca.mes<=12);
+             writeln('ingrese anio de inicio');
+             readln(regca.anio);
+             verdias;
+             writeln('se genero inicio en mes: ',regca.mes,' año: ',regca.anio);
+        end
+        else
+        begin
+            ult:=filesize(ca)-1;
+            seek (ca,ult);
+            read(ca,regca);
+            if regca.mes <> 12 then
+               regca.mes:=regca.mes+1
+            else
+            begin
+                 regca.mes:=1;
+                 regca.anio:=regca.anio+1;
+            end;
+            verdias;
+            writeln('se genero el mes: ',regca.mes,' año: ',regca.anio);
+            ult:=filesize(ca);
+            seek(ca,ult);
+            end;
+     reset(g);
+     read(g,regg);
+     regca.precio:=regg.valorxdia;
+     write(ca,regca);
+     delay(3000);
+     ClrScr
 end;
 
 procedure mostrarcli;
@@ -255,15 +264,32 @@ begin
 
 end;
 
+function buscar(dni:string[8]):boolean;
+begin
+reset(c);
+b:=false;
+repeat
+read(c,regc);
+      if regc.dni=dni then
+      b:=true
+until (b=true) or eof(c) ;
+if b=true then
+begin
+buscar:=true;
+end
+else
+begin
+buscar:=false;
+end
+end;
+
 procedure alta;
 begin
-
-regc.dni:=dni;
-writeln('ingrese nombre y apellido');
+writeln('Ingrese nombre y apellido: ');
 readln(regc.nomyapel);
-writeln('se guardado satisfactoriamente');
- seek (c, filesize(c))    ;
-write (c, regc);
+regc.dni:=dni;
+seek(c,filesize(c));
+write(c,regc)
 end;
 
 procedure altacli;
@@ -273,21 +299,33 @@ reset(c);
 if IOresult = 2 then
      begin
           rewrite(c);
-     end ;
+     end;
 {$I+};
-writeln('ingrese DNI del cliente');
+writeln('ingrese dni del cliente');
 read(dni);
-
-//dico(dni);
-//writeln('salio de dico');
-//readkey;
-if dico(dni) then
-         writeln('Ese cliente ya fue cargado')
-   else
+if filesize(c)=0 then
+   begin
+   write('Ingrese nombre y apellido: ');
+   readln(regc.nomyapel);
+   regc.dni:=dni;
+   write(c,regc);
+   writeln('Cliente Guardado')
+end
+else
+    begin
+    reset(c);
+    if buscar(dni) then
+       begin
+       writeln('ese cliente ya fue cargado')
+       end
+    else
+    begin
         alta;
-ordenar;
-mostrarcli;
-readkey;
+        writeln('cliente guardado.')
+        end
+    end;
+    ordenar;
+    mostrarcli;
 end;
 
 procedure altamasc;
@@ -312,6 +350,7 @@ close (g);
 close (c);
 close (m);
 close (a);
+close (ca);
 end;
 
 begin
